@@ -38,6 +38,21 @@ public class UserRestController {
 		System.out.println(this.getClass());
 	}
 	
+	@Value("#{commonProperties['pageUnit']}")
+	int pageUnit;
+	@Value("#{commonProperties['pageSize']}")
+	int pageSize;
+	
+	@RequestMapping(value = "json/addUser", method = RequestMethod.POST)
+	public User addUser(@RequestBody User user, Model model) throws Exception{
+		
+		System.out.println("/user/json/addUser : POST");
+		
+		userService.addUser(user);
+		
+		return userService.getUser(user.getUserId());
+	}
+	
 	@RequestMapping( value="json/getUser/{userId}", method=RequestMethod.GET )
 	public User getUser( @PathVariable String userId ) throws Exception{
 		
@@ -47,6 +62,38 @@ public class UserRestController {
 		return userService.getUser(userId);
 	}
 
+	@RequestMapping( value="json/getUser", method=RequestMethod.POST )
+	public User getUser( @RequestBody User user ) throws Exception{
+		
+		System.out.println("/user/json/getUser : POST");
+		
+		//Business Logic
+		return userService.getUser(user.getUserId());
+	}
+	
+	@RequestMapping(value = "json/updateUser/{userId}", method = RequestMethod.GET)
+	public User updateUser(@PathVariable String userId) throws Exception {
+		
+		System.out.println("/user/json/updateUser : GET");
+		
+		return userService.getUser(userId);
+	}
+	
+	@RequestMapping(value = "json/updateUser", method = RequestMethod.POST)
+	public User updateUser(@RequestBody User user, HttpSession session) throws Exception{
+		
+		System.out.println("/user/json/updateUser : POST");
+		
+		userService.updateUser(user);
+		
+		String sessoinId = ((User)session.getAttribute("user")).getUserId();
+		if(session.equals(user.getUserId())) {
+			session.setAttribute("user", user);
+		}
+		
+		return userService.getUser(user.getUserId());
+	}
+	
 	@RequestMapping( value="json/login", method=RequestMethod.POST )
 	public User login(	@RequestBody User user,
 									HttpSession session ) throws Exception{
@@ -61,5 +108,16 @@ public class UserRestController {
 		}
 		
 		return dbUser;
+	}
+	
+	@RequestMapping(value = "json/logout", method = RequestMethod.GET)
+	public String logout(HttpSession session) throws Exception{
+		
+		System.out.println("/user/json/logout : POST");
+		
+		session.invalidate();
+		String sessionValue = (String) session.getAttribute("user");
+		
+		return sessionValue;
 	}
 }
