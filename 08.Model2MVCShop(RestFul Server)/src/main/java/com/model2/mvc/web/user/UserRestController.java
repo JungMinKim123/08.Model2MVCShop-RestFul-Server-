@@ -120,4 +120,14 @@ public class UserRestController {
 		
 		return sessionValue;
 	}
+	
+//	@RequestMapping(value = "json/checkDuplication", method = RequestMethod.POST)
+//	public User checkDuplication(@RequestBody User user) throws Exception{
+//	
+//		System.out.println("user/json/checkDuplication : POST");
+//		
+//		boolean result = userService.checkDuplication(user.getUserId());
+//		
+//		return result;
+//	}
 }
