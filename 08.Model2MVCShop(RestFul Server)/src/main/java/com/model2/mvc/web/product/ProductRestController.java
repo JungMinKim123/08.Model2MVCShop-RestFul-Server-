@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.websocket.server.PathParam;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,15 +30,15 @@ import com.model2.mvc.service.product.ProductService;
 
 
 @RestController
-@RequestMapping("/product/")
-public class ProductRestController2 {
+@RequestMapping("/product/*")
+public class ProductRestController {
 
 	//Field
 	@Autowired
 	@Qualifier("productServiceImpl")
 	private ProductService productService;
 	
-	public ProductRestController2() {
+	public ProductRestController() {
 		System.out.println(this.getClass());
 	}
 	
@@ -51,7 +52,7 @@ public class ProductRestController2 {
 	String uploadTempDir;
 	
 //	@RequestMapping("/addProduct.do")
-	@RequestMapping(value="addProduct", method = RequestMethod.POST)
+	@RequestMapping(value="json/addProduct", method = RequestMethod.POST)
 	public String addProduct(@ModelAttribute("ProdVO") Product product, @RequestParam("fileUploadName") MultipartFile file) throws Exception{
 		
 		System.out.println("/product/addProduct : POST");
@@ -73,12 +74,10 @@ public class ProductRestController2 {
 	}
 
 //	@RequestMapping("/getProduct.do")
-	@RequestMapping(value = "getProduct", method = RequestMethod.GET)
-	public String getProduct(@RequestParam int prodNo, HttpServletRequest request, Model model) throws Exception{
+	@RequestMapping(value = "json/getProduct/{prodNo}", method = RequestMethod.GET)
+	public Product getProduct(@PathVariable int prodNo, HttpServletRequest request) throws Exception{
 		
-		System.out.println("/product/getProduct : GET");
-		Product prod = productService.getProduct(prodNo);
-		model.addAttribute("prod",prod);
+		System.out.println("/product/json/getProduct : GET");
 		
 		String history = "";
 		Cookie[] cookies = request.getCookies();
@@ -93,11 +92,11 @@ public class ProductRestController2 {
 		
 		Cookie cookie = new Cookie("history", URLEncoder.encode(prodNo+history));
 		
-		return "forward:/product/updateProductView.jsp";
+		return productService.getProduct(prodNo);
 	}
 	
 //	@RequestMapping("/updateProduct.do")
-	@RequestMapping(value = "updateProduct", method = RequestMethod.POST)
+	@RequestMapping(value = "json/updateProduct", method = RequestMethod.POST)
 	public String updateProduct(@ModelAttribute("update") Product prod, @RequestParam("fileUploadName") MultipartFile file) throws Exception{
 		
 		System.out.println("/product/updateProduct : POST");
@@ -111,7 +110,7 @@ public class ProductRestController2 {
 	}
 	
 //	@RequestMapping("/updateProductView.do")
-	@RequestMapping(value = "updateProduct", method = RequestMethod.GET)
+	@RequestMapping(value = "json/updateProduct", method = RequestMethod.GET)
 	public String updateProductView(@RequestParam int prodNo, Model model) throws Exception{
 		
 		System.out.println("/product/updateProduct : GET");
@@ -122,10 +121,10 @@ public class ProductRestController2 {
 	}
 	
 //	@RequestMapping("/listProduct.do")
-	@RequestMapping(value = "listProduct")
+	@RequestMapping(value = "json/listProduct")
 	public String listProduct(@ModelAttribute("Search") Search search, Model model, @RequestParam("menu") String menu) throws Exception{
 		
-		System.out.println("/product/listProduct : GET / POST");
+		System.out.println("json/product/listProduct : GET / POST");
 		
 		if(search.getCurrentPage() == 0) {
 			search.setCurrentPage(1);
